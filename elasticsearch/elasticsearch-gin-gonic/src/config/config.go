@@ -1,0 +1,6 @@
+package config
+
+const (
+	ENV_KEY_PORT          = "ES_MANAGEMENT_PORT"
+	DB_ELASTIC_SEARCH_SRV = "DB_ELASTIC_SEARCH_SRV"
+)

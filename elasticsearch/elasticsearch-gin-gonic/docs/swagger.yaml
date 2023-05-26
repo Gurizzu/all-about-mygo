@@ -1,0 +1,243 @@
+definitions:
+  model.MetadataResponse:
+    properties:
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/model.PaginationResponse'
+      status:
+        type: boolean
+      timeExecution:
+        type: string
+    type: object
+  model.Movies:
+    properties:
+      country:
+        type: string
+      createdAt:
+        type: integer
+      date_added:
+        type: string
+      description:
+        type: string
+      director:
+        type: string
+      duration:
+        type: string
+      id:
+        type: string
+      listed_in:
+        type: string
+      rating:
+        type: string
+      release_year:
+        type: integer
+      show_id:
+        type: string
+      title:
+        type: string
+      types:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+  model.Movies_Search:
+    properties:
+      genre:
+        items:
+          type: string
+        type: array
+      order:
+        example: ASC
+        type: string
+      orderBy:
+        example: createdAt
+        type: string
+      page:
+        example: 1
+        type: integer
+      range:
+        $ref: '#/definitions/model.Range'
+      search:
+        type: string
+      size:
+        example: 11
+        type: integer
+    type: object
+  model.Movies_View:
+    properties:
+      country:
+        type: string
+      createdAt:
+        type: integer
+      date_added:
+        type: string
+      description:
+        type: string
+      director:
+        type: string
+      duration:
+        type: string
+      id:
+        type: string
+      listed_in:
+        type: string
+      rating:
+        type: string
+      release_year:
+        type: integer
+      show_id:
+        type: string
+      title:
+        type: string
+      types:
+        type: string
+      updatedAt:
+        type: integer
+    type: object
+  model.PaginationResponse:
+    properties:
+      size:
+        type: integer
+      totalElements:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  model.Range:
+    properties:
+      end:
+        example: 1646792565000
+        type: integer
+      field:
+        example: updatedAt
+        type: string
+      start:
+        example: 1646792565000
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /movie/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: PARAM
+        in: body
+        name: parameter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Movies'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: OK
+          schema:
+            properties:
+              meta_data:
+                $ref: '#/definitions/model.MetadataResponse'
+            type: object
+      tags:
+      - movies
+  /movie/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              meta_data:
+                $ref: '#/definitions/model.MetadataResponse'
+            type: object
+      security:
+      - JWT: []
+      tags:
+      - movies
+  /movie/get-all:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: PARAM
+        in: body
+        name: parameter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Movies_Search'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                items:
+                  $ref: '#/definitions/model.Movies_View'
+                type: array
+              meta_data:
+                $ref: '#/definitions/model.MetadataResponse'
+            type: object
+      tags:
+      - movies
+  /movie/get-one:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/model.Movies_View'
+              meta_data:
+                $ref: '#/definitions/model.MetadataResponse'
+            type: object
+      tags:
+      - movies
+  /movie/update:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: PARAM
+        in: body
+        name: parameter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Movies'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              meta_data:
+                $ref: '#/definitions/model.MetadataResponse'
+            type: object
+      tags:
+      - movies
+swagger: "2.0"

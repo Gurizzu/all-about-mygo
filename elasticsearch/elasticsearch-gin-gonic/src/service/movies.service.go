@@ -30,15 +30,8 @@ func (this *MovieService) BaseGetAll(param model.Movies_Search, index *db.Elasti
 	var listFilterAnd []interface{}
 	param.HandleFilter(&listFilterAnd)
 
-	//if len(listFilterAnd) > 0 {
-	//	filter = map[string]interface{}{
-	//		"query": map[string]interface{}{
-	//			"bool": map[string]interface{}{
-	//				"must": listFilterAnd,
-	//			},
-	//		},
-	//	}
-	//}
+	fmt.Println(listFilterAnd)
+
 	metadata.Pagination, metadata.Message = index.Find(listFilterAnd, param.Request, &data)
 	return
 }

@@ -152,8 +152,6 @@ func (this ElasticUtil) BaseFindOne(query string, pointerDecodeTo interface{}) (
 		client.Search.WithBody(strings.NewReader(query)),
 	)
 
-	res, err = client.Search()
-
 	if err != nil {
 		log.Println(err)
 		return err
@@ -220,38 +218,47 @@ func (this ElasticUtil) BaseFindPagination(filter interface{}, fieldRequestParam
 		return
 	}
 
-	var requestPagination model.Request_Pagination
-	//* ----------------------------- SET FILTER REQUEST ---------------------------- */
-	switch requestAsType := fieldRequestParam.(type) {
-	case model.Request:
-		filter = requestAsType.BaseHandle(filter, rangeField)
-		requestPagination = requestAsType.Request_Pagination
-	case model.Request_Pagination:
-		requestPagination = requestAsType
-	}
-
-	//* ------------------------- SET PAGINATION OPTIONS ------------------------- */
-	var ListSort []interface{}
-	if orderBy := requestPagination.OrderBy; orderBy != "" {
-		sort := map[string]interface{}{
-			requestPagination.OrderBy: map[string]interface{}{
-				"order": strings.ToLower(requestPagination.Order),
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": filter,
 			},
-		}
-		ListSort = append(ListSort, sort)
+		},
 	}
-	skip, limit := GetSkipAndLimit(requestPagination)
 
-	filter.(map[string]interface{})["skip"] = skip
-	filter.(map[string]interface{})["size"] = limit
-	filter.(map[string]interface{})["sort"] = ListSort
+	// fmt.Println(filter)
+	// var requestPagination model.Request_Pagination
+	// //* ----------------------------- SET FILTER REQUEST ---------------------------- */
+	// switch requestAsType := fieldRequestParam.(type) {
+	// case model.Request:
+	// 	filter = requestAsType.BaseHandle(filter, rangeField)
+	// 	requestPagination = requestAsType.Request_Pagination
+	// case model.Request_Pagination:
+	// 	requestPagination = requestAsType
+	// }
 
-	jString, _ := json.Marshal(filter)
+	// //* ------------------------- SET PAGINATION OPTIONS ------------------------- */
+	// var ListSort []interface{}
+	// if orderBy := requestPagination.OrderBy; orderBy != "" {
+	// 	sort := map[string]interface{}{
+	// 		requestPagination.OrderBy: map[string]interface{}{
+	// 			"order": strings.ToLower(requestPagination.Order),
+	// 		},
+	// 	}
+	// 	ListSort = append(ListSort, sort)
+	// }
+	// skip, limit := GetSkipAndLimit(requestPagination)
+
+	// filter.(map[string]interface{})["skip"] = skip
+	// filter.(map[string]interface{})["size"] = limit
+	// filter.(map[string]interface{})["sort"] = ListSort
+
+	jString, _ := json.Marshal(query)
 
 	res, err := client.Search(
 		client.Search.WithContext(this.ctx),
 		client.Search.WithIndex(this.indexName),
-		client.Search.WithBody(strings.NewReader(fmt.Sprintf(`%s`, jString))),
+		client.Search.WithBody(strings.NewReader(string(jString))),
 	)
 	defer res.Body.Close()
 	if res.IsError() {
@@ -264,12 +271,14 @@ func (this ElasticUtil) BaseFindPagination(filter interface{}, fieldRequestParam
 		log.Fatalf("Error parsing the response body: %s", err)
 	}
 
-	// totalHits := r["hits"].(map[string]interface{})["total"].(map[string]interface{})["value"]
-	paginationResp = &model.PaginationResponse{
-		Size: int(limit),
-		// TotalElements: int64(totalHits),
-		// TotalPages:    int64(math.Ceil(float64(totalHits) / float64(limit))),
-	}
+	hits := r["hits"].(map[string]interface{})["hits"].([]interface{})
+
+	jsonString, _ := json.Marshal(hits)
+	fmt.Println(jsonString)
+
+	_ = json.Unmarshal(jsonString, pointerDecodeTo)
+	fmt.Println(pointerDecodeTo)
+
 	return
 
 }

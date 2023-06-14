@@ -1,0 +1,47 @@
+definitions:
+  model.Item:
+    properties:
+      created_at:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: integer
+    type: object
+  model.Response:
+    properties:
+      data: {}
+    type: object
+info:
+  contact: {}
+paths:
+  /item/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: PARAM
+        in: body
+        name: parameter
+        required: true
+        schema:
+          $ref: '#/definitions/model.Item'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: OK
+          schema:
+            properties:
+              meta_data:
+                $ref: '#/definitions/model.Response'
+            type: object
+      security:
+      - JWT: []
+      tags:
+      - Item
+swagger: "2.0"

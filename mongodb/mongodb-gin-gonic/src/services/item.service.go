@@ -6,6 +6,7 @@ import (
 	"log"
 	"mongodb-gin-gonic/src/model"
 	"mongodb-gin-gonic/src/util/db"
+	"mongodb-gin-gonic/src/util/db/ustring"
 	"mongodb-gin-gonic/src/util/enum"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -31,6 +32,11 @@ func (o *ItemService) Upsert(param model.Item, isUpdate bool) (resp model.Respon
 
 	_, col := o.dbUtil.GetCollection()
 
+	paramId := param.Id
+	if paramId == "" && len(paramId) == 0 {
+		param.Id = ustring.GenerateID()
+	}
+
 	if !isUpdate {
 		res, err := col.InsertOne(o.ctx, param)
 		if err != nil {
@@ -38,9 +44,7 @@ func (o *ItemService) Upsert(param model.Item, isUpdate bool) (resp model.Respon
 		}
 		resp.Data = res.InsertedID
 		return
-	}
-
-	if isUpdate {
+	} else {
 		if updateRes, err := col.UpdateByID(o.ctx, bson.M{"_id": param.Id}, bson.M{"$set": param}); err != nil {
 			log.Println(err)
 		} else {
@@ -52,6 +56,23 @@ func (o *ItemService) Upsert(param model.Item, isUpdate bool) (resp model.Respon
 			resp.Data = updateRes.UpsertedID
 		}
 
+	}
+	return
+}
+
+func (o *ItemService) FindOne(key string, value string) (pointerDecodeTo model.Item, err string) {
+	_, col := o.dbUtil.GetCollection()
+
+	filter := bson.M{key: value}
+	res := col.FindOne(o.ctx, filter)
+	if res.Err() != nil {
+		log.Println(res.Err(), filter)
+		err = "data not found"
+		return
+	}
+
+	if err := res.Decode(&pointerDecodeTo); err != nil {
+		log.Println(err)
 	}
 	return
 }
